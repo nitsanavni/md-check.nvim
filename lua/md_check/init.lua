@@ -13,28 +13,37 @@ local function toggle_checkbox()
 	local line = vim.api.nvim_get_current_line()
 
 	-- Pattern to match a checkbox at the start of the line
-	local checkbox_pattern = "^%s*[%-%+%*]%s%[[xX ]%]"
+	local checkbox_pattern = "^(%s*)([%-%+%*])%s%[([xX ])%](.*)$"
 
-	-- Find the position of the checkbox in the line
-	local s, e = line:find(checkbox_pattern)
+	-- Try matching a checkbox
+	local indent, bullet, state, rest = line:match(checkbox_pattern)
 
-	if s then
-		-- Extract the checkbox part
-		local checkbox = line:sub(s, e)
+	if indent then
 		-- Toggle the checkbox
-		if checkbox:match("%[[ ]%]") then
-			checkbox = checkbox:gsub("%[[ ]%]", "[x]")
-		elseif checkbox:match("%[[xX]%]") then
-			checkbox = checkbox:gsub("%[[xX]%]", "[ ]")
+		local new_state
+		if state == " " then
+			new_state = "x"
 		else
-			-- Not a checkbox, do nothing
-			return
+			new_state = " "
 		end
-		-- Replace the old checkbox with the new one
-		local new_line = line:sub(1, s - 1) .. checkbox .. line:sub(e + 1)
+		local new_line = indent .. bullet .. " [" .. new_state .. "]" .. rest
 		vim.api.nvim_set_current_line(new_line)
 	else
-		print("No checkbox found at the start of this line.")
+		-- Not a checkbox
+		-- Try matching a bullet point
+		local bullet_pattern = "^(%s*)([%-%+%*])%s+(.*)$"
+		local indent, bullet, rest = line:match(bullet_pattern)
+		if indent then
+			-- It's a bullet point, convert to checkbox
+			local new_line = indent .. bullet .. " [ ] " .. rest
+			vim.api.nvim_set_current_line(new_line)
+		else
+			-- Not a bullet point, make it a checkbox with default bullet '- [ ]'
+			local indent = line:match("^(%s*)")
+			local rest = line:sub(#indent + 1)
+			local new_line = indent .. "- [ ] " .. rest
+			vim.api.nvim_set_current_line(new_line)
+		end
 	end
 end
 

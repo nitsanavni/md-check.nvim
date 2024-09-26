@@ -3,7 +3,7 @@ local M = {}
 
 -- Default configuration
 local default_config = {
-	keymap = "<leader>c", -- Default key mapping
+	keymap = "<leader>mx", -- Default key mapping
 	command = "ToggleCheckbox", -- Default command name
 }
 

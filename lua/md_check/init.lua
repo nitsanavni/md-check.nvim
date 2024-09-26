@@ -56,7 +56,7 @@ function M.setup(user_config)
 				0,
 				"n",
 				config.keymap,
-				':lua require("markdown_checkbox_toggle").toggle()<CR>',
+				':lua require("md_check").toggle()<CR>',
 				{ noremap = true, silent = true }
 			)
 			-- Create buffer-local command with the configured name
